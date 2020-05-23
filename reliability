@@ -1,0 +1,42 @@
+##This is our first class, and today we are going to learn more about classical estimates of the reliability of test scores.
+##The code below implements reliability analysis for the following cases: 
+##inter-rater, test-retest, tau-equivalence, and congeneric model
+
+library(irr)
+library(haven)
+library(psych)
+library(foreign)
+
+#Carregar Banco 2
+
+Banco_1 <- read.spss("C:/Users/Nelson/Desktop/Temp/Psicometria/Banco 1.sav", use.value.labels = FALSE)
+Banco_1<-as.data.frame(Banco_1)
+
+Banco_2 <- read.spss("C:/Users/hauck/OneDrive/Google Drive/USF/Aulas/2019/Psicometria/Psicometria/Analises/Banco 2.sav", use.value.labels = FALSE)
+Banco_2<-as.data.frame(Banco_2)
+View(Banco_2)
+
+#Kappa para dois juízes
+kappa2(Banco_2[c(2,3)], "unweighted")
+
+#Kappa para três ou mais juízes
+kappam.fleiss(Banco_2[c(3:5,7),c(1:3)])
+
+#Kappa para itens ordinais
+kappa2(Banco_2[c(1,2)], "squared")
+
+#Correlação intraclasse
+ICC(Banco_2[,c(1,3)])
+
+#Correlacao de Pearson
+corr.test(Banco_2[,c(1,3)])
+
+#Alpha e lambda6
+alpha(Banco_1[c(1:3)],check.keys=TRUE)
+
+#Omega
+#Omega a partir da solução Schmid-Leiman
+omega(Banco_1,nfactors=3,poly=TRUE)
+
+#Omega a partir da CFA
+omegaSem(Banco_1)

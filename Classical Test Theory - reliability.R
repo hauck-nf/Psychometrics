@@ -1,7 +1,8 @@
 #Classical test theory 
-##Introductory class on reliability, Graduate School in Psychology, Universidade São Francisco
+##Introductory class on reliability, Graduate School in Psychology, Universidade SÃ£o Francisco
 ##Prof. Dr. Nelson Hauck
-##syntax and examples: Patrick Mair, Modern psychometrics with R: https://www.springer.com/gp/book/9783319931753
+##syntax and examples: Patrick Mair, Modern psychometrics with R
+#https://www.springer.com/gp/book/9783319931753
 
 #load packages  
 install.packages("MPsychoR")
@@ -9,9 +10,9 @@ library("psych")
 
 ###LET'S PRACTICE!###
 #EXAMPLE 1: data on hybrid motivation of R package developers, from Mairs (2015)
-#https://www.pnas.org/content/112/48/14788
-#777 package developers
-#assessed on three motivational dimensions: intrinsic, extrinsic, hybrid
+##https://www.pnas.org/content/112/48/14788
+##777 package developers
+##assessed on three motivational dimensions: intrinsic, extrinsic, hybrid
 
 library("MPsychoR")
 data("Rmotivation")
@@ -80,9 +81,9 @@ round(dfit$generalizability, 3)
 #EXAMPLE 2: multiple sources of error
 #dataset from Lake and Hoyt (2013)
 #https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3650138/
-#181 children
-#assessed on self-regulation
-#different items, and raters (the published study reports also on different occasions)
+##181 children
+##assessed on self-regulation
+##different items, and raters (the published study reports also on different occasions)
 
 data("Lakes")
 phydat <- subset(Lakes, subtest == "physical")

@@ -142,5 +142,9 @@ dfit$generalizability
 
 #HOMEWORK ASSIGNEMENT: now calculate reliability estimates (you choose which ones) for the intrinsic motivation items
 #from the Rmotivation dataset!!
+head(Rmotivation)
+names(Rmotivation)
+int<-Rmotivation[,c(32:36)]
+int <- na.omit(int) 
 
 

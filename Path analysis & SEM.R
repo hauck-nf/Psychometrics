@@ -6,7 +6,7 @@
 #PRELUDE
 #Try to understand the matrix calculations underlying a multivariate regression model
 #Y=XB+E
-#model parameters based on: y = 1.15122X1 + 0.09756X2 - 1.21463
+#model parameters: y = 1.15122X1 + 0.09756X2 - 1.21463
 Y=cbind(Y1=c(1,3,5,4,6))
 X=cbind(B0=c(1,1,1,1,1),X1=c(2,3,5,4,6),X2=c(2,4,3,7,5))
 B=rbind(B0=-1.21,X1=(1.15),X2=(.10))

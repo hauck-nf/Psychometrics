@@ -8,8 +8,8 @@
 #Y=XB+E
 #model parameters based on: y = 1.15122X1 + 0.09756X2 - 1.21463
 Y=cbind(Y1=c(1,3,5,4,6))
-X=cbind(X1=c(2,3,5,4,6),X2=c(2,4,3,7,5),B0=c(1,1,1,1,1))
-B=rbind(X1=(1.15),X2=(.10),B0=-1.21)
+X=cbind(B0=c(1,1,1,1,1),X1=c(2,3,5,4,6),X2=c(2,4,3,7,5))
+B=rbind(B0=-1.21,X1=(1.15),X2=(.10))
 
 #calculate residuals
 E=Y-X%*%B
@@ -70,6 +70,7 @@ round(fit.ss, 4)
 #Z=X
 #cognitive appraisal mediates the relationship between 
 #work intensification and emotional exhaustion
+#Potential outcome framework
 library("mediation")
 fit.MX <- lm(cogapp ~ wintense, data = Paskvan)
 fit.YXM <- lm(emotion ~ wintense + cogapp, data = Paskvan)

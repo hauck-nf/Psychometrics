@@ -114,7 +114,7 @@ anova(gpcm,grm)
 
 #HOMEWORK ASSIGNEMENT
 #Choose one among the previous polytomous IRT models and perform an analysis on the 
-#Agreeableness items from the Big Five Inventory data set called "bfi", in the psych package.
+#Agreeableness items from the Big Five Inventory dataset called "bfi", of the psych package.
 library(psych)
 data("bfi")
 names(bfi)

@@ -112,3 +112,10 @@ M2(grm)
 #compare the results from the GPCM and the GRM
 anova(gpcm,grm)
 
+#HOMEWORK ASSIGNEMENT
+#Choose one among the previous polytomous IRT models and perform an analysis on the 
+#Agreeableness items from the Big Five Inventory data set called "bfi", in the psych package.
+library(psych)
+data("bfi")
+names(bfi)
+A<-bfi[,1:5]

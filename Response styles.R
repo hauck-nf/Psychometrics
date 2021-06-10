@@ -10,12 +10,12 @@ library(dplyr)
 
 #Acquiescent and extreme responding styles in self-reported big five domains
 #We are going to use items from C factor
-bfi=data("bfi")#load the data
+data("bfi")#load the data
 extreme<-apply(bfi,2,function (x) recode(x,`1`=1,`6`=1,`2`=0,`3`=0,`4`=0,`5`=0))
 extreme<-as.data.frame(apply(extreme[,1:25],2,as.numeric))
 ext <- grepl("[1-5]",names(extreme)); names(extreme)[ext] <- paste0(names(extreme)[ext],"_ext")
 ext<-cbind(bfi[,1:25],extreme)
-
+View(bfi)
 corr.test(bfi[,6:10])#check correlations to detect item keying
 
 #Random intercept model to control for acquiescence
@@ -73,10 +73,6 @@ summary(fit)
 coef(fit,simplify=TRUE, irt.parms = TRUE)
 
 
-
-
-
-
 #Let us simulate the data!
 #This is a multidimensional model in which one trait-descriptive
 #and one acquiescence random intercept factor
@@ -86,8 +82,11 @@ coef(fit,simplify=TRUE, irt.parms = TRUE)
 model=
   'trait=~.7*y1+.7*y2+.7*y3+.7*y4+(-.7)*y5+(-.7)*y6+(-.7)*y7+(-.7)*y8
   acq=~.2*y1+.2*y2+.2*y3+.2*y4+.2*y5+.2*y6+.2*y7+.2*y8
+  ERS=~ .2*y1+.2*y2+.2*y3+.2*y4+(-.2)*y5+(-.2)*y6+(-.2)*y7+(-.2)*y8
   trait~~0*acq
   trait~~1*trait
+  ERS~~0*trait
+  ERS~~0*acq
 '
 data<-simulateData(model = model, model.type = "sem", standardized=TRUE,sample.nobs = 2000L)
 data<-apply(data,2,function (x) cut(x,breaks=c(5), labels=c("1","2","3","4","5")))
@@ -99,7 +98,7 @@ print(ifa@Fit)
 itemfit(ifa)
 
 #BIFACTOR MODEL
-bfactor=bfactor(data,model=c(1,1,1,1,1,1,1,1))#the same in a bifactor model
+bfactor=bfactor(data,model=c(1,1,1,1,2,2,2,2))#the same in a bifactor model
 summary(bfactor)
 
 #STANDARD GRADED RESPONSE MODEL (SAMEJIMA, 1969)
@@ -113,9 +112,9 @@ coef(grm,simplify=TRUE, irt.parms = TRUE)
 #random intercept factor!!
 #Strategy 1: keep items 5:8 negatively-keyed (negative discriminations in the trait dimension will occur)
 prs<-mirt(data,2, itemtype = 'graded', pars = 'values',TOL = .001)
-prs[prs$name=="a2", ]$value <- 1 
+prs[prs$name=="a2", ]$value <- 1
 prs[prs$name=="a2", ]$est <- FALSE 
-prs[prs$name=="a1", ]$value <- abs(prs[prs$name=="a1", ]$value)
+prs[prs$name=="a1", ]$value <- prs[prs$name=="a1", ]$value
 prs[prs$name=="COV_22", ]$est <- TRUE 
 prs[prs$name=="COV_21", ]$est <- FALSE#this will work even you if set it  to TRUE
 mirt_acq<-mirt(data,2, itemtype = 'graded', pars = prs,TOL = .001)
@@ -125,8 +124,8 @@ coef(mirt_acq,simplify=TRUE, irt.parms = TRUE)#standard IRT
 
 #RANDOM INTERCEPT GRADED RESPONSE MODEL (RI ITEM FACTOR ANALYSIS)
 #revsersing items 5:8 negatively-keyed (does not work so well)
-prs <- data %>% mutate_at(vars(5:8),funs(6-.)) %>%
-mirt(2, itemtype = 'graded', pars = 'values',TOL = .001)
+data_rev <- data %>% mutate_at(vars(5:8),funs(6-.)) 
+prs=mirt(data_rev,2, itemtype = 'graded', pars = 'values',TOL = .001)
 key=c(1,1,1,1,-1,-1,-1,-1)
 prs[prs$name=="a2", ]$value <- key
 prs[prs$name=="a2", ]$est <- FALSE 
@@ -134,7 +133,7 @@ prs[prs$name=="a1", ]$value <- abs(prs[prs$name=="a1", ]$value)
 prs[prs$name=="COV_11", ]$value <- 1 
 prs[prs$name=="COV_22", ]$est <- TRUE 
 prs[prs$name=="COV_21", ]$est <- FALSE
-mirt_acq<-mirt(data,2, itemtype = 'graded', pars = prs,TOL = .0001,technical = list(NCYCLES = 2000))
+mirt_acq<-mirt(data_rev,2, itemtype = 'graded', pars = prs,TOL = .0001,technical = list(NCYCLES = 2000))
 summary(mirt_acq)
 coef(mirt_acq,simplify=TRUE, irt.parms = TRUE)
   
@@ -158,8 +157,9 @@ scoring<-list()
 for(i in 1:8){#nuber of items
  scoring[[i]]<-matrix(
      c(1,2,3,4,5, # trait
-       0,0,0,1,2 # ARS
-       ), 5, 2) #number of response options, number of dimensions
+       0,0,0,1,2,# ARS
+       2,1,0,1,2# ERS
+       ), 5, 3) #number of response options, number of dimensions
    }
 
  # Define model: all items load on both dimensions
@@ -167,7 +167,10 @@ for(i in 1:8){#nuber of items
  model<-"
  trait = 1-8 #all items load on the trait factor
  ARS = 1-8 #all items load on the ARS factor
+ ERS = 1-8
  COV = trait*0ARS #trait and ARS have 0 correlation
+ COV = trait*0ERS
+ COV = ARS*0ERS
  COV = trait*1trait #trait variance is constrained to 1
  "
  # Estimate the trait and ARS model

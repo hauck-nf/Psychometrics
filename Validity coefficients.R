@@ -41,8 +41,8 @@ anova(fit1,fit2)
 #does being in a relationship make people happy?
 
 model2=
-  'happiness~.5*children+.5*money
-  children~.5*relationship
+  'happiness~.5*family_environment+.5*money
+  family_environment~.5*relationship
   money~-.5*relationship
 '
 data2<-simulateData(model = model2, model.type = "sem", standardized=TRUE,sample.nobs = 500L)
@@ -50,7 +50,7 @@ data2<-simulateData(model = model2, model.type = "sem", standardized=TRUE,sample
 #first, correlate and observe
 corr.test(data2)
 
-#now test if having children and being in a relationship make people happier
-fit3<-lm(happiness~children+relationship, data=data2)
+#now test if being in a relationship and having a family environment make people happier
+fit3<-lm(happiness~family_environment+relationship, data=data2)
 summary(fit3)#what is happening here?
 

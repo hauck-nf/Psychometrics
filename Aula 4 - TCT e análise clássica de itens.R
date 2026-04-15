@@ -14,11 +14,12 @@ library(readxl)
 library(psych)
 library(ltm)
 library(devtools)
+library(MPsychoR)#pacote novo, instalar
+library(mirt)#pacote novo, instalar
 
 # Importar banco e dicionário ---------------------------------------------
 
 dados <- read_excel("banco_questionario_ficticio_200casos.xlsx")
-
 dicionario <- read_xlsx("dicionario.xlsx", 2) %>%
   as.data.frame()
 
@@ -29,11 +30,9 @@ source_url("https://raw.githubusercontent.com/hauck-nf/codes/main/analyze_psycho
 # Inspeção inicial --------------------------------------------------------
 
 glimpse(dados)
-
 glimpse(dicionario)
 
 # Exercício 1 - Descrição inicial dos itens com psych::describe() ---------
-
 # Estatísticas descritivas dos itens
 dados %>%
   dplyr::select(starts_with("bfi")) %>%
@@ -49,13 +48,6 @@ dados %>%
   dplyr::mutate(
     dplyr::across(c(mean, sd, skew, kurtosis), ~ round(.x, 2))
   )
-
-# Perguntas para discussão:
-# 1. Há itens com médias muito altas ou muito baixas?
-# 2. Há itens com pouca variabilidade?
-# 3. O que isso pode sugerir sobre o comportamento dos itens na TCT?
-
-# Exercício 2 - Frequência das categorias de resposta ---------------------
 
 # Frequências por item
 tabela_freq_prop <- dados %>%
@@ -82,12 +74,12 @@ tabela_freq_prop %>%
   print(n = 30)
 
 # Perguntas para discussão:
-# 1. Quais itens parecem mais "fáceis" de endossar?
-# 2. Quais itens parecem mais concentrados em poucas categorias?
-# 3. Que efeito isso pode ter na fidedignidade?
+# 1. Há itens com médias muito altas ou muito baixas?
+# 2. Há itens com pouca variabilidade?
+# 3. O que isso pode sugerir sobre o comportamento dos itens na TCT?
+# 4. Quais itens parecem mais "fáceis" de endossar?
 
-# Exercício 3 - Estatísticas dos itens com ltm::descript() ----------------
-
+# Exercício 2 - Estatísticas dos itens com ltm::descript() ----------------
 # A função descript() fornece estatísticas úteis em contexto de TCT/IRT
 dados %>%
   dplyr::select(starts_with("bfi")) %>%
@@ -100,22 +92,26 @@ dados %>%
 # 1. Que semelhanças e diferenças aparecem em relação ao psych::describe()?
 # 2. Que tipo de descrição parece mais diretamente útil para avaliação de itens?
 
-# Exercício 4 - Número de itens por escala --------------------------------
+# Exercício 3 - Análise clássica de discriminação -------------------------------
+#load binary indicators dataset (subtraction items)
+data("zareki")
+zarsub <- zareki[, grep("subtr", colnames(zareki))]
 
-# Contar quantos itens há em cada escala
-dicionario %>%
-  count(scale, sort = TRUE)
+#descriptive analysis
+descript(zarsub)
 
-# Contar quantos itens há em cada higher_order
-dicionario %>%
-  count(higher_order, sort = TRUE)
+#discriminação
+zarsub%>%
+  alpha()%>%
+  print([["item.stats"]][["r.drop"]])
 
-# Perguntas para discussão:
-# 1. Quais escalas têm número suficiente de itens para cálculo de consistência interna?
-# 2. Por que escalas muito curtas exigem cautela na interpretação da fidedignidade?
 
-# Exercício 5 - Rodar a função de escoragem -------------------------------
 
+
+
+
+
+# Exercício 4 - Rodar a função de escoragem -------------------------------
 resultado <- analyze_psychometrics_hierarchical(
   data = dados,
   dictionary = dicionario,
@@ -139,8 +135,7 @@ resultado$skipped_constructs
 # 2. Houve construtos pulados por insuficiência de itens?
 # 3. Por que isso é importante em TCT?
 
-# Exercício 6 - Interpretar alpha e G6 ------------------------------------
-
+# Exercício 5 - Interpretar alpha e G6 ------------------------------------
 # Tabela de confiabilidade
 resultado$reliability %>%
   arrange(level, scale)
@@ -154,8 +149,7 @@ resultado$reliability %>%
 # 2. Há diferenças entre alpha e G6?
 # 3. O número de itens parece influenciar a fidedignidade?
 
-# Exercício 7 - Análise detalhada de uma escala com psych::alpha() --------
-
+# Exercício 6 - Análise TCT de uma escala com psych::alpha() --------
 # Ver nomes disponíveis na análise de TCT
 names(resultado$Classical_Test_Theory_Analysis$scale)
 
@@ -176,29 +170,7 @@ resultado$Classical_Test_Theory_Analysis$scale[["BFI2S__Extroversao"]]$alpha.dro
 # 2. Algum item parece prejudicar a consistência interna?
 # 3. O que significa interpretar alpha.drop?
 
-# Exercício 8 - Repetir para fatores de ordem superior --------------------
-
-# Ver nomes disponíveis em higher_order
-names(resultado$Classical_Test_Theory_Analysis$higher_order)
-
-# Exemplo: acessar um fator amplo
-resultado$Classical_Test_Theory_Analysis$higher_order[["BFI2S__Estabilidade_Emocional"]]
-
-# Estatísticas totais
-resultado$Classical_Test_Theory_Analysis$higher_order[["BFI2S__Estabilidade_Emocional"]]$total
-
-# Estatísticas dos itens
-resultado$Classical_Test_Theory_Analysis$higher_order[["BFI2S__Estabilidade_Emocional"]]$item.stats
-
-# Efeito de retirar cada item
-resultado$Classical_Test_Theory_Analysis$higher_order[["BFI2S__Estabilidade_Emocional"]]$alpha.drop
-
-# Perguntas para discussão:
-# 1. A fidedignidade do fator amplo é maior do que a de alguma escala específica?
-# 2. O aumento do número de itens parece ter efeito sobre o alpha?
-
-# Exercício 9 - Resumo final da aula --------------------------------------
-
+# Exercício 7 - Resumo final da aula --------------------------------------
 # Montar um quadro síntese das escalas calculadas
 resultado$reliability %>%
   mutate(
